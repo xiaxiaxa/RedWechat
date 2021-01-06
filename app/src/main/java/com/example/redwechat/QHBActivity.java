@@ -9,9 +9,6 @@ import android.view.MotionEvent;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.handsome.boke2.R;
-
-
 public class QHBActivity extends AppCompatActivity  {
     private GestureDetector gestureDetector;
 

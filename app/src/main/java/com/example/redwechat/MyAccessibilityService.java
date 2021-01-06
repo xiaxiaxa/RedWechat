@@ -14,6 +14,7 @@ import androidx.annotation.RequiresApi;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.security.MessageDigest;
 import java.util.List;
 
 public class MyAccessibilityService extends AccessibilityService {
@@ -203,6 +204,25 @@ public class MyAccessibilityService extends AccessibilityService {
 
                 }
             }
+        }
+    }
+
+    public String md5Encode(String inStr){
+        try {
+            byte[] md5Bytes = MessageDigest.getInstance("MD5").digest(inStr.getBytes("UTF-8"));
+            StringBuffer hexValue = new StringBuffer();
+            for (byte b : md5Bytes) {
+                int val = b & 255;
+                if (val < 16) {
+                    hexValue.append("0");
+                }
+                hexValue.append(Integer.toHexString(val));
+            }
+            return hexValue.toString();
+        } catch (Exception e) {
+            System.out.println(e.toString());
+            e.printStackTrace();
+            return "";
         }
     }
 

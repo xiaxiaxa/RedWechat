@@ -17,6 +17,9 @@ android {
             minifyEnabled false
             zipAlignEnabled true
         }
+        debug {
+
+        }
     }
 }
 
