@@ -30,4 +30,6 @@ public class QHBActivity extends AppCompatActivity  {
             return super.onDoubleTap(e);
         }
     }
+
+
 }

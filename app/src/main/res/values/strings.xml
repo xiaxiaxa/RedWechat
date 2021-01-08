@@ -1,6 +1,9 @@
 <resources>
-    <string name="app_name">RedWechat</string>
+    <string name="app_name">Mr.Xw</string>
     <string name="action_settings">Settings</string>
-    <string name="description">由于微信每个版本都会出现不同的id，我们必须更改寻找控件的id实现点击事件</string>
-    <string name="label">提供微信自动抢红包_Mr.xw</string>
+    <string name="description">个人自用年会抢红包，目前支持在微信聊天页面自动抢红包,代码已经开源，
+     有兴趣的可以自己去完善:博客：https://blog.csdn.net/xiaweilihai/article/details/107073560
+    源码：https://github.com/xiaxiaxa/RedWechat</string>
+    <string name="label">自动抢红包_Mr.xw（交流QQ：623480780）</string>
+    <string name="yuan">2131361812</string>
 </resources>

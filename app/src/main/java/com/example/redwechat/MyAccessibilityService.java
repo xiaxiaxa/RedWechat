@@ -3,10 +3,8 @@ package com.example.redwechat;
 import android.accessibilityservice.AccessibilityService;
 import android.content.Intent;
 import android.os.Build;
-
 import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
@@ -30,9 +28,12 @@ public class MyAccessibilityService extends AccessibilityService {
     private final static String WECHAT_UI_2 = "android.widget.FrameLayout";
     private final static int NUM = 4096;
     private final static int DELAY_TIME = 100;//ms
+    private final static int DELAY_DETAIL_TIME = 300;//ms
     private boolean isOpenRP = false;
     private boolean isOpenDetail = false;
     private Handler handler = new Handler();
+    private long mValue = 0;
+
 
     public int onStartCommand(Intent intent, int flags, int startId) {
         return super.onStartCommand(intent, flags, startId);
@@ -56,7 +57,7 @@ public class MyAccessibilityService extends AccessibilityService {
                 break;
             case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
-                String className = event.getClassName().toString();
+                final String className = event.getClassName().toString();
                 AccessibilityNodeInfo rootNode = getRootInActiveWindow();
                 if (WECHAT_UI.equals(className) || WECHAT_UI_2.equals(className)) {
                     findRedPacket(rootNode);
@@ -67,14 +68,21 @@ public class MyAccessibilityService extends AccessibilityService {
                         public void run() {
                             openRedPacket();
                             isOpenDetail = true;
+
                         }
                     }, DELAY_TIME);
+                }
 
-                }
-                if (isOpenDetail && WECHAT_RED_DETAIL.equals(className)) {
-                    isOpenDetail = false;
-                    release();
-                }
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (isOpenDetail && WECHAT_RED_DETAIL.equals(className)) {
+                            MyAccessibilityService.this.performGlobalAction(1);
+                            isOpenDetail = false;
+                            release();
+                        }
+                    }
+                }, DELAY_DETAIL_TIME);
                 break;
         }
     }
@@ -144,21 +152,35 @@ public class MyAccessibilityService extends AccessibilityService {
     }
 
     private void openRedPacket(AccessibilityNodeInfo rootNode) {
-        for (int i = 0; i < rootNode.getChildCount(); i++) {
-            if (rootNode.getChildCount() == 0) {
-                continue;
-            }
-            AccessibilityNodeInfo accessibilityNodeInfo = rootNode.getChild(i);
-            accessibilityNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-            if (WECHAT_RED_BUTTON.equals(accessibilityNodeInfo.getClassName())) {
-                accessibilityNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+        if (rootNode != null) {
+            int childCount = rootNode.getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                AccessibilityNodeInfo tempNodeInfo = rootNode.getChild(i);
+                if (tempNodeInfo.getChildCount() > 0) {
+                    openRedPacket(tempNodeInfo);
+                } else if (i + 1 < childCount) {
+                    AccessibilityNodeInfo node1 = rootNode.getChild(i);
+                    AccessibilityNodeInfo node2 = rootNode.getChild(i + 1);
+                    if (node1.getText() != null && node2.getText() != null) {
+                        if (getString(R.string.yuan).equals(node2.getText().toString())) {
+                            this.mValue = (long) (Float.valueOf(node1.getText().toString()).floatValue() * 100.0f);
+                            return;
+                        }
+                    } else {
+                        return;
+                    }
+                } else {
+                    continue;
+                }
             }
         }
+
     }
 
     @Override
     public void onInterrupt() {
     }
+
     /**
      * 模拟Cmd debug
      */
@@ -207,7 +229,7 @@ public class MyAccessibilityService extends AccessibilityService {
         }
     }
 
-    public String md5Encode(String inStr){
+    public String md5Encode(String inStr) {
         try {
             byte[] md5Bytes = MessageDigest.getInstance("MD5").digest(inStr.getBytes("UTF-8"));
             StringBuffer hexValue = new StringBuffer();
