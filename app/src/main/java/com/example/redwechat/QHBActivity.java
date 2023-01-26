@@ -9,6 +9,7 @@ import android.view.MotionEvent;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+
 public class QHBActivity extends AppCompatActivity  {
     private GestureDetector gestureDetector;
 
@@ -30,6 +31,4 @@ public class QHBActivity extends AppCompatActivity  {
             return super.onDoubleTap(e);
         }
     }
-
-
 }

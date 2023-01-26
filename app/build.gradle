@@ -2,23 +2,62 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 28
+
+    signingConfigs {
+        Properties properties = new Properties()
+        InputStream inputStream
+        def key_keyAlias
+        def key_keyPassword
+        def key_storePassword
+        xw_signing {
+            try {
+                inputStream = file('key/sign_info.properties').newDataInputStream()
+                properties.load(inputStream)
+                v1SigningEnabled true
+                v2SigningEnabled true
+                //读取文件
+                def sdkDir = properties.getProperty('storeFile')
+                storeFile file(sdkDir)
+
+                //读取字段
+                key_keyAlias = properties.getProperty('keyAlias')
+                key_keyPassword = properties.getProperty('keyPassword')
+                key_storePassword = properties.getProperty('storePassword')
+
+                //关闭输入流
+                inputStream.close()
+
+                storePassword key_storePassword
+                keyAlias key_keyAlias
+                keyPassword key_keyPassword
+            } catch (Exception e) {
+                e.printStackTrace()
+            }
+        }
+    }
     defaultConfig {
         applicationId "com.example.redwechat"
         minSdkVersion 15
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
+        signingConfig signingConfigs.xw_signing
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+        debug {
+            versionNameSuffix "_Debug"
+            minifyEnabled false
+            shrinkResources false
+            zipAlignEnabled false
+        }
         release {
+            versionNameSuffix "_Release"
             buildConfigField("boolean", "LOG", "false")
             buildConfigField("boolean", "LogUtils", "false")
-            minifyEnabled false
+            minifyEnabled true
             zipAlignEnabled true
-        }
-        debug {
-
+            shrinkResources true
         }
     }
 }
